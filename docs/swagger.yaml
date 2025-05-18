@@ -1,0 +1,61 @@
+definitions:
+  api.WordInfo:
+    properties:
+      count:
+        type: integer
+      line_numbers:
+        items:
+          type: integer
+        type: array
+      stem:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /concordance:
+    post:
+      consumes:
+      - text/plain
+      description: Generate a concordance for German text input
+      parameters:
+      - description: German text
+        in: body
+        name: input
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/api.WordInfo'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Analyze German text
+      tags:
+      - concordance
+  /health:
+    get:
+      description: Check if the API is running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health check
+      tags:
+      - health
+swagger: "2.0"

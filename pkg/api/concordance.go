@@ -1,15 +1,13 @@
 package api
 
 import (
-	"net/http"
 	"regexp"
 	"sort"
 	"strings"
 
 	"slices"
 
-	"github.com/gin-gonic/gin"
-	"github.com/kljensen/snowball"
+	snowball "github.com/AlasdairF/Stemmer"
 )
 
 type ConcordanceRequest struct {
@@ -22,21 +20,15 @@ type WordInfo struct {
 	LineCounts []int  `json:"line_numbers"`
 }
 
-func ConcordanceHandler(c *gin.Context) {
-	var req ConcordanceRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	concordance := Concordance(req.Text)
-	c.JSON(http.StatusOK, concordance)
-}
-
 func Concordance(text string) map[string]WordInfo {
 	concordance := make(map[string]WordInfo)
 	lines := strings.Split(text, "\n")
 	wordRegex := regexp.MustCompile(`[\p{L}]+`)
+
+	stemmer, err := snowball.New("german")
+	if err != nil {
+		panic(err)
+	}
 
 	for lineNum, line := range lines {
 		line = strings.TrimSpace(line)
@@ -47,7 +39,7 @@ func Concordance(text string) map[string]WordInfo {
 		words := wordRegex.FindAllString(line, -1)
 		for _, word := range words {
 			lowerWord := strings.ToLower(word)
-			stemmed, _ := snowball.Stem(lowerWord, "german", true)
+			stemmed := stemmer.Stem(lowerWord)
 
 			if info, exists := concordance[lowerWord]; exists {
 				info.Count++

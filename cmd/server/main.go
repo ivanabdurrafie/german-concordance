@@ -4,8 +4,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/ivanabdurrafie/german-concordance/docs"
 	"github.com/ivanabdurrafie/german-concordance/pkg/api"
 	"github.com/ivanabdurrafie/german-concordance/pkg/config"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
 )
 
@@ -28,6 +31,7 @@ func main() {
 	// Routes
 	router.GET("/health", api.HealthCheck)
 	router.POST("/concordance", api.ConcordanceHandler)
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Start server
 	logger.Info("Starting server", zap.String("port", cfg.Server.Port))
